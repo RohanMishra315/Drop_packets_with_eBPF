@@ -1,5 +1,5 @@
 
-//go:build ignore
+
 
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
@@ -42,20 +42,19 @@ int drop_packets(struct xdp_md *ctx)
     if ((void *)tcp + sizeof(*tcp) > data_end)
         return XDP_PASS;
 
-    // Check if it's a TCP packet
     if (ip->protocol == IPPROTO_TCP)
     {
         __u32 key0 = 0;
         __u32 *port = bpf_map_lookup_elem(&port_map, &key0);
         __u32 *count = bpf_map_lookup_elem(&pkt_count, &key0);
 
-        // if port is not passed from userspace Golang program.
+      
 
         if (port != NULL)
         {
             if (*port < 0)
             {
-                *port = 4040; // default
+                *port = 4040; 
             }
 
             if (bpf_ntohs(tcp->dest) == *port) 

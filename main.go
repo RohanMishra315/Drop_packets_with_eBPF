@@ -16,26 +16,26 @@ import (
 )
 
 func main() {
-	// Check whether kernel supports XDP or not
+	
 	err := features.HaveProgramType(ebpf.XDP)
 	if errors.Is(err, ebpf.ErrNotSupported) {
 		fmt.Println("XDP program type is not supported")
 		return
 	}
 
-	// Remove resource limits for kernels <5.11.
+	
 	if err := rlimit.RemoveMemlock(); err != nil {
 		log.Fatal("Removing memlock:", err)
 	}
 
-	// Load the compiled eBPF ELF and load it into the kernel.
+
 	var objs dropObjects
 	if err := loadDropObjects(&objs, nil); err != nil {
 		log.Fatal("Loading eBPF objects:", err)
 	}
 	defer objs.Close()
 
-	// Set interface to "lo" (loopback)
+	
 	ifname := "lo"
 	iface, err := net.InterfaceByName(ifname)
 	if err != nil {
@@ -44,13 +44,13 @@ func main() {
 
 	var port uint32 = 4040
 
-	// Put port number on which packets should be dropped.
+
 	err = objs.PortMap.Put(uint32(0), port)
 	if err != nil {
 		log.Printf("Unable to set port number, default port will be used (default: 4040)\n%s", err)
 	}
 
-	// Attach eBPF program to the loopback interface.
+	
 	link, err := link.AttachXDP(link.XDPOptions{
 		Program:   objs.DropPackets,
 		Interface: iface.Index,
